@@ -1,0 +1,45 @@
+# ASP.NET
+# Build and test ASP.NET projects.
+# Add steps that publish symbols, save build artifacts, deploy, and more:
+# https://docs.microsoft.com/azure/devops/pipelines/apps/aspnet/build-aspnet-4
+
+trigger:
+- master
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+variables:
+  buildConfiguration: 'Release'
+
+steps:
+- task: DotNetCoreCLI@2
+  inputs:
+    command: 'restore'
+    projects: '**/*.csproj'
+    feedsToUse: 'select'
+  displayName: 'restore dotnet packages'
+
+- task: DotNetCoreCLI@2
+  inputs:
+    command: 'Build'
+    projects: '**/*.csproj'
+    arguments: '--no-restore'
+  displayName: 'Build dotnet Project'
+
+- task: DotNetCoreCLI@2
+  inputs:
+    command: 'Test'
+    projects: '**/*Test.csproj'
+    publishWebProjects: true
+  displayName: 'Test Run'
+
+- task: DotNetCoreCLI@2
+  inputs:
+    command: 'publish'
+    publishWebProjects: true
+    projects: '**/CustomerApi.csproj'
+    arguments: '--configuration $(buildconfiguration) --no-restore'
+    modifyOutputPath: true
+  displayName: "Publish customer api"
+  
